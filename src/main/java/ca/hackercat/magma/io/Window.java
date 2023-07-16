@@ -1,29 +1,19 @@
 package ca.hackercat.magma.io;
 
-import ca.hackercat.logging.Logger;
 import ca.hackercat.magma.MagmaEngine;
-import ca.hackercat.magma.io.FileUtils;
-import ca.hackercat.magma.io.Keyboard;
-import ca.hackercat.magma.io.Mouse;
-import org.lwjgl.BufferUtils;
-import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.glfw.GLFWWindowCloseCallback;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
+import org.lwjgl.openal.AL;
+import org.lwjgl.openal.ALC;
+import org.lwjgl.openal.ALCCapabilities;
+import org.lwjgl.openal.ALCapabilities;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLCapabilities;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
-
 import static ca.hackercat.logging.Logger.LOGGER;
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.stb.STBImage.stbi_image_free;
-import static org.lwjgl.stb.STBImage.stbi_load_from_memory;
+import static org.lwjgl.openal.ALC10.*;
 
 public class Window {
 
@@ -42,10 +32,17 @@ public class Window {
     private String title;
     private GLFWVidMode videoMode;
 
+    private long audioContext;
+    private long audioDevice;
+
     private long window;
 
     private GLFWWindowSizeCallback sizeCallback;
     private GLFWWindowCloseCallback closeCallback;
+
+    private GLCapabilities glCapabilities;
+    private ALCCapabilities alcCapabilities;
+    private ALCapabilities alCapabilities;
 
     private long renderTimeMillis = System.currentTimeMillis();
     private long lastRenderTimeMillis = System.currentTimeMillis() - 10L;
@@ -110,9 +107,26 @@ public class Window {
         // swapInterval == vsync, 0 == off, 1 == on
         glfwSwapInterval(1);
         createCallbacks();
-        GL.createCapabilities();
+        glCapabilities = GL.createCapabilities();
 
-        // load icon
+        // init audio
+
+        String defaultDevice = alcGetString(0, ALC_DEFAULT_DEVICE_SPECIFIER);
+        audioDevice = alcOpenDevice(defaultDevice);
+
+        int[] attributes = new int[] {0};
+        audioContext = alcCreateContext(audioDevice, attributes);
+
+        alcMakeContextCurrent(audioContext);
+
+        alcCapabilities = ALC.createCapabilities(audioDevice);
+        alCapabilities = AL.createCapabilities(alcCapabilities);
+
+        if (!alCapabilities.OpenAL10) {
+            LOGGER.error("Audio library is not supported.");
+        }
+
+        // TODO: load icon
 //        InputStream is = FileUtils.getInputStream("/icon.png");
 //        if (is != null) {
 //            IntBuffer width = BufferUtils.createIntBuffer(1);
@@ -172,6 +186,8 @@ public class Window {
     public void close() {
         sizeCallback.free();
         closeCallback.free();
+        alcDestroyContext(audioContext);
+        alcCloseDevice(audioDevice);
         glfwDestroyWindow(window);
         glfwTerminate();
     }

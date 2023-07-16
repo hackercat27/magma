@@ -10,6 +10,10 @@ out vec4 fragColor;
 uniform sampler2D tex;
 
 void main() {
-    fragColor = texture(tex, pass_TextureUV);
+    vec4 col = texture(tex, pass_TextureUV);
+    if (col.a == 0.0) {
+        discard;
+    }
+    fragColor = col;
 }
 

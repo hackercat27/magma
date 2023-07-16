@@ -35,10 +35,16 @@ public class Keyboard {
     }
 
     private static void press(int key) {
+        if (key > KEY_COUNT || key < 0)
+            return;
+
         held[key] = true;
         pressedBuffer[key] = true;
     }
     private static void release(int key) {
+        if (key > KEY_COUNT || key < 0)
+            return;
+
         held[key] = false;
     }
     public static void update() {
@@ -47,9 +53,15 @@ public class Keyboard {
     }
 
     public static boolean isKeyHeld(int key) {
+        if (key > KEY_COUNT || key < 0)
+            return false;
+
         return held[key];
     }
     public static boolean isKeyPressed(int key) {
+        if (key > KEY_COUNT || key < 0)
+            return false;
+
         return pressed[key];
     }
 

@@ -2,7 +2,6 @@ package ca.hackercat.magma.util;
 
 import ca.hackercat.magma.io.Window;
 import ca.hackercat.magma.object.Camera;
-import ca.hackercat.magma.object.ControllableCamera;
 import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -12,6 +11,8 @@ import org.joml.Vector3d;
 import org.joml.Vector3f;
 import org.joml.Vector4d;
 import org.joml.Vector4f;
+
+import java.util.Random;
 
 public final class MagmaMath {
     private MagmaMath() {}
@@ -32,7 +33,7 @@ public final class MagmaMath {
                 .scale(scale);
     }
 
-    public static Matrix4f getOrthographicMatrix(ControllableCamera c, Window window) {
+    public static Matrix4f getOrthographicMatrix(Camera c, Window window) {
         Matrix4f matrix = new Matrix4f().identity();
 
         float near = 0.1f;
@@ -175,7 +176,6 @@ public final class MagmaMath {
         return p.mul(q, new Quaternionf());
     }
 
-
     public static float sin(float a) {
         return org.joml.Math.sin(a);
     }
@@ -223,5 +223,14 @@ public final class MagmaMath {
     }
     public static double sqrt(double a) {
         return pow(a, 0.5d);
+    }
+
+    private static final Random random = new Random();
+
+    public static double randomd() {
+        return random.nextDouble();
+    }
+    public static float randomf() {
+        return random.nextFloat();
     }
 }
