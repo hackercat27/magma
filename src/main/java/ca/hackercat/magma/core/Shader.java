@@ -1,5 +1,6 @@
 package ca.hackercat.magma.core;
 
+import ca.hackercat.logging.Logger;
 import ca.hackercat.magma.io.FileUtils;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
@@ -9,7 +10,6 @@ import org.lwjgl.system.MemoryUtil;
 
 import java.nio.FloatBuffer;
 
-import static ca.hackercat.logging.Logger.LOGGER;
 import static org.lwjgl.opengl.GL20.*;
 
 public class Shader {
@@ -18,6 +18,8 @@ public class Shader {
     // engine want to use them they don't need to be in memory twice
     public static final Shader DEFAULT_SHADER = new Shader("DEFAULT_SHADER", "/assets/shaders/default.vsh", "/assets/shaders/default.fsh");
     public static final Shader COLOR_SHADER = new Shader("COLOR_SHADER", "/assets/shaders/color.vsh", "/assets/shaders/color.fsh");
+
+    private static final Logger LOGGER = Logger.get(Shader.class);
 
     private String vertexSource, fragmentSource;
     private String vertexPath, fragmentPath;

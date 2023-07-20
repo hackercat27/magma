@@ -1,5 +1,7 @@
 package ca.hackercat.magma.io;
 
+
+import ca.hackercat.logging.Logger;
 import ca.hackercat.magma.core.Mesh;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -11,10 +13,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import static ca.hackercat.logging.Logger.LOGGER;
-
-
 public class FileUtils {
+    private static final Logger LOGGER = Logger.get(FileUtils.class);
+
+    private static boolean fileInject = true;
 
     public static String getContents(String path) {
         InputStream is = getInputStream(path);
@@ -35,15 +37,35 @@ public class FileUtils {
     }
 
     public static InputStream getInputStream(String path) {
+        InputStream is = null;
         if (isResource(path)) {
-            return FileUtils.class.getResourceAsStream(path);
+            if (fileInject) {
+                try {
+                    is = new FileInputStream(path);
+                    LOGGER.log("Returning InputStream '" + path + "' from system resources instead of program resources");
+                } catch (FileNotFoundException ignored) {
+                    LOGGER.log("Returning InputStream '" + path + "' from program resources");
+                    is = FileUtils.class.getResourceAsStream(path);
+                }
+            }
+            else {
+                LOGGER.log("Returning InputStream '" + path + "' from program resources");
+                is = FileUtils.class.getResourceAsStream(path);
+            }
         }
-        try {
-            return new FileInputStream(path);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+        else {
+            try {
+                is = new FileInputStream(path);
+                LOGGER.log("Returning InputStream '" + path + "' from system resources");
+                return is;
+            } catch (FileNotFoundException e) {
+                LOGGER.error(e);
+            }
         }
-        return null;
+        if (is == null) {
+            LOGGER.warn("InputStream '" + path + "' == null!");
+        }
+        return is;
     }
 
     public static Mesh loadWavefrontOBJ(String path, String texturePath) {

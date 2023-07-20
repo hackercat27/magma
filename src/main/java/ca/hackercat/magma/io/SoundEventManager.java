@@ -1,16 +1,17 @@
 package ca.hackercat.magma.io;
 
+import ca.hackercat.logging.Logger;
+import ca.hackercat.magma.object.Updatable;
 import ca.hackercat.magma.util.MagmaMath;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static ca.hackercat.logging.Logger.LOGGER;
-
-public class SoundEventManager {
+public class SoundEventManager extends Updatable {
 
     private static final String DEFAULT_PATH = "/assets/sounds.json";
+    private static final Logger LOG = Logger.get(SoundEventManager.class);
 
     private static class SoundEvent {
         String event;
@@ -39,7 +40,7 @@ public class SoundEventManager {
 
     private Sound getSound(String name) {
         if (events == null) {
-            LOGGER.warn("Sound events not initialized!");
+            LOG.warn("Sound events not initialized!");
             return null;
         }
 
@@ -50,5 +51,15 @@ public class SoundEventManager {
             }
         }
         return null;
+    }
+
+    @Override
+    public void update(float deltaTime) {
+
+    }
+
+    @Override
+    public void close() {
+
     }
 }

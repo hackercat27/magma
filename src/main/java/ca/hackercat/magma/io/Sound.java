@@ -1,5 +1,7 @@
 package ca.hackercat.magma.io;
 
+import ca.hackercat.logging.Logger;
+import ca.hackercat.magma.util.MagmaMath;
 import org.lwjgl.BufferUtils;
 
 import java.io.IOException;
@@ -8,7 +10,6 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
-import static ca.hackercat.logging.Logger.LOGGER;
 import static org.lwjgl.openal.AL10.*;
 import static org.lwjgl.stb.STBVorbis.stb_vorbis_decode_filename;
 import static org.lwjgl.stb.STBVorbis.stb_vorbis_decode_memory;
@@ -17,9 +18,12 @@ import static org.lwjgl.system.libc.LibCStdlib.free;
 
 public class Sound {
 
+    private static final Logger LOGGER = Logger.get(Sound.class);
+
     private int bufferID;
     private int sourceID;
     private String path;
+
 
     private boolean isPlaying = false;
 
@@ -81,10 +85,17 @@ public class Sound {
         alSourcei(sourceID, AL_BUFFER, bufferID);
         alSourcei(sourceID, AL_LOOPING, loops ? 1 : 0);
         alSourcei(sourceID, AL_POSITION, 0);
-        alSourcef(sourceID, AL_GAIN, 0.3f);
+        alSourcef(sourceID, AL_GAIN, 1f);
 
         free(rawAudioBuffer);
 
+    }
+
+    private float toDB(float linear) {
+        return 10 * MagmaMath.log10(linear);
+    }
+    private float toLinear(float db) {
+        return MagmaMath.pow(10, db / 10);
     }
 
     public void close() {

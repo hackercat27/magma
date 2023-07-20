@@ -225,6 +225,19 @@ public final class MagmaMath {
         return pow(a, 0.5d);
     }
 
+    public static float log(float a) {
+        return (float) java.lang.Math.log(a);
+    }
+    public static float log10(float a) {
+        return (float) java.lang.Math.log10(a);
+    }
+    public static double log(double a) {
+        return java.lang.Math.log(a);
+    }
+    public static double log10(double a) {
+        return java.lang.Math.log10(a);
+    }
+
     private static final Random random = new Random();
 
     public static double randomd() {

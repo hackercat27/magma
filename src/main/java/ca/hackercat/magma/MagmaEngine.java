@@ -1,5 +1,6 @@
 package ca.hackercat.magma;
 
+import ca.hackercat.logging.Logger;
 import ca.hackercat.magma.core.MagmaRenderer;
 import ca.hackercat.magma.core.Shader;
 import ca.hackercat.magma.io.Keyboard;
@@ -12,9 +13,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import static ca.hackercat.logging.Logger.LOGGER;
-
 public class MagmaEngine {
+
+    private Logger LOGGER = Logger.get(MagmaEngine.class);
 
     private Window window;
 
@@ -30,6 +31,47 @@ public class MagmaEngine {
     }
     public MagmaEngine(String title, int initialWidth, int initialHeight) {
         window = new Window(this, initialWidth, initialHeight, title);
+        init();
+    }
+
+    private void init() {
+        StringBuilder str = new StringBuilder();
+        str.append("Properties:").append("\n");
+
+        String[] properties = new String[] {
+                "java.vendor",
+                "java.version",
+                "os.name",
+                "os.version",
+                "user.dir"
+        };
+
+        for (String property : properties) {
+            str.append(property).append(" = ").append(System.getProperty(property)).append("\n");
+        }
+
+        LOGGER.log(str);
+
+        Mouse.setWindow(window);
+        Keyboard.setWindow(window);
+
+        renderer = new MagmaRenderer(window);
+    }
+
+    public void start() {
+        running = true;
+        while (running) {
+            update();
+            render();
+
+            window.swapBuffers();
+        }
+        close();
+        LOGGER.log("Finished execution");
+    }
+
+    public void halt() {
+        running = false;
     }
 
     private void update() {
@@ -92,27 +134,6 @@ public class MagmaEngine {
 
         window.setLastRenderTimeMillis(window.getRenderTimeMillis());
         window.setRenderTimeMillis(System.currentTimeMillis());
-    }
-
-    public void start() {
-        Mouse.setWindow(window);
-        Keyboard.setWindow(window);
-
-        renderer = new MagmaRenderer(window);
-
-        running = true;
-        while (running) {
-            update();
-            render();
-
-            window.swapBuffers();
-        }
-        close();
-        LOGGER.log("Finished execution");
-    }
-
-    public void halt() {
-        running = false;
     }
 
     public void close() {

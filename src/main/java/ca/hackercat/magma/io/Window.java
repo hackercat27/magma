@@ -1,5 +1,6 @@
 package ca.hackercat.magma.io;
 
+import ca.hackercat.logging.Logger;
 import ca.hackercat.magma.MagmaEngine;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.glfw.GLFWWindowCloseCallback;
@@ -11,7 +12,6 @@ import org.lwjgl.openal.ALCapabilities;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLCapabilities;
 
-import static ca.hackercat.logging.Logger.LOGGER;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.openal.ALC10.*;
 
@@ -22,6 +22,7 @@ public class Window {
         WINDOWED_BORDERLESS,
         FULLSCREEN
     }
+    private static final Logger LOGGER = Logger.get(Window.class);
 
     private State state = State.WINDOWED;
 

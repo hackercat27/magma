@@ -1,5 +1,6 @@
 package ca.hackercat.magma.core;
 
+import ca.hackercat.logging.Logger;
 import ca.hackercat.magma.io.Texture;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -8,12 +9,11 @@ import org.lwjgl.system.MemoryUtil;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
-import static ca.hackercat.logging.Logger.LOGGER;
 import static org.lwjgl.opengl.GL30C.*;
 
 public class Mesh {
 
-//    private Vertex[] verts;
+    private static final Logger LOG = Logger.get(Mesh.class);
 
     private Vector3f[] vertices;
     private Vector2f[] uvs;
@@ -99,7 +99,7 @@ public class Mesh {
 
         glBindVertexArray(0);
 
-        LOGGER.log(
+        LOG.log(
                 "Created mesh (" + this.positionBuffer + ", "
                 + this.textureUVBuffer + ", "
                 + this.normalBuffer + ", "
