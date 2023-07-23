@@ -2,7 +2,6 @@ package ca.hackercat.magma.util;
 
 import ca.hackercat.magma.io.Window;
 import ca.hackercat.magma.object.Camera;
-import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector2d;
@@ -19,6 +18,10 @@ public final class MagmaMath {
 
     public static final float PIf = 3.1415927f;
     public static final double PId = 3.141592653589793d;
+    private static final double DG_RDd = 0.017453292519943295;
+    private static final double RD_DGd = 57.29577951308232;
+    private static final float DG_RDf = 0.017453292f;
+    private static final float RD_DGf = 57.29578f;
 
     public static Matrix4f getTransformationMatrix(Vector3f position, Quaternionf rotation, float scale) {
         return new Matrix4f()
@@ -83,15 +86,6 @@ public final class MagmaMath {
             return value - v;
         }
         return value;
-    }
-
-    public static int round(float f) {
-        if (f <= 0)
-            return Math.round(f) - 1;
-        return Math.round(f);
-    }
-    public static float floor(float f) {
-        return Math.floor(f);
     }
 
     public static double currentTimeSeconds() {
@@ -170,12 +164,6 @@ public final class MagmaMath {
         return a1.nlerp(a2, t, new Quaternionf());
     }
 
-    public static Quaternionf rotate(Quaternionf p, float angle, float x, float y, float z) {
-        // TODO: fixme
-        Quaternionf q = new Quaternionf().fromAxisAngleRad(x, y, z, angle);
-        return p.mul(q, new Quaternionf());
-    }
-
     public static float sin(float a) {
         return org.joml.Math.sin(a);
     }
@@ -236,6 +224,69 @@ public final class MagmaMath {
     }
     public static double log10(double a) {
         return java.lang.Math.log10(a);
+    }
+
+    public static float toRadians(float a) {
+        return a * DG_RDf;
+    }
+    public static float toDegrees(float a) {
+        return a * RD_DGf;
+    }
+    public static double toRadians(double a) {
+        return a * DG_RDd;
+    }
+    public static double toDegrees(double a) {
+        return a * RD_DGd;
+    }
+
+    public static double abs(double a) {
+        return (a < 0d? 0d - a : a);
+    }
+    public static float abs(float a) {
+        return (a < 0f? 0f - a : a);
+    }
+    public static int abs(int a) {
+        return (a < 0? -a : a);
+    }
+    public static long abs(long a) {
+        return (a < 0L? -a : a);
+    }
+
+    public static float max(float a, float b) {
+        return a > b? a : b;
+    }
+    public static double max(double a, double b) {
+        return a > b? a : b;
+    }
+    public static int max(int a, int b) {
+        return a > b? a : b;
+    }
+    public static long max(long a, long b) {
+        return a > b? a : b;
+    }
+    public static float min(float a, float b) {
+        return a < b? a : b;
+    }
+    public static double min(double a, double b) {
+        return a < b? a : b;
+    }
+    public static int min(int a, int b) {
+        return a < b? a : b;
+    }
+    public static long min(long a, long b) {
+        return a < b? a : b;
+    }
+    public static float clamp(float lower, float upper, float value) {
+        return min(upper, max(lower, value));
+    }
+    public static double clamp(double lower, double upper, double value) {
+        return min(upper, max(lower, value));
+    }
+    public static int clamp(int lower, int upper, int value) {
+        return min(upper, max(lower, value));
+    }
+    public static long clamp(long lower, long upper, long value) {
+        return min(upper, max(lower, value));
     }
 
     private static final Random random = new Random();
