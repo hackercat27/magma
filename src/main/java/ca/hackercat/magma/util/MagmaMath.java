@@ -68,7 +68,7 @@ public final class MagmaMath {
     }
 
     public static double ease(double value, double targetValue, double easingCoefficient) {
-        double v = Math.abs(value - targetValue) * easingCoefficient;
+        double v = Math.abs(value - targetValue) * (1 - clamp(0, 1, easingCoefficient));
         if (value - targetValue < 0) {
             return value + v;
         }
@@ -78,7 +78,7 @@ public final class MagmaMath {
         return value;
     }
     public static float ease(float value, float targetValue, float easingCoefficient) {
-        float v = Math.abs(value - targetValue) * easingCoefficient;
+        float v = Math.abs(value - targetValue) * (1 - clamp(0, 1, easingCoefficient));
         if (value - targetValue < 0) {
             return value + v;
         }
