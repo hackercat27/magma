@@ -3,11 +3,13 @@ package ca.hackercat.magma;
 import ca.hackercat.logging.Logger;
 import ca.hackercat.magma.core.MagmaRenderer;
 import ca.hackercat.magma.core.Shader;
+import ca.hackercat.magma.io.Controller;
 import ca.hackercat.magma.io.Keyboard;
 import ca.hackercat.magma.io.Mouse;
 import ca.hackercat.magma.io.Window;
 import ca.hackercat.magma.object.Camera;
 import ca.hackercat.magma.object.Drawable;
+import ca.hackercat.magma.io.SoundEventManager;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -19,10 +21,10 @@ public class MagmaEngine {
 
     private Window window;
 
-    private List<Shader> shaders = new ArrayList<>(0);
-
     private boolean running;
     private MagmaRenderer renderer;
+
+    private int counter;
 
     private final List<Drawable> objects = new ArrayList<>(0);
 
@@ -75,10 +77,18 @@ public class MagmaEngine {
     }
 
     private void update() {
+
+        counter++;
+        if (counter > 1000) {
+            counter = 0;
+            SoundEventManager.cleanManagers();
+        }
+
         float deltaTime = (window.getRenderTimeMillis() - window.getLastRenderTimeMillis()) / 1000f;
 
         Keyboard.update();
         Mouse.update();
+        Controller.update();
         window.update();
 
         // garbage collection
@@ -97,9 +107,10 @@ public class MagmaEngine {
             object.update(deltaTime);
 
             if (object instanceof Camera c) {
-                renderer.cameraPosition = c.getPosition();
-                renderer.cameraRotation = c.getRotation();
-                renderer.cameraFOV = c.getFOV();
+//                renderer.cameraPosition = c.getPosition();
+//                renderer.cameraRotation = c.getRotation();
+//                renderer.cameraFOV = c.getFOV();
+                renderer.camera = c;
             }
         }
     }
@@ -141,19 +152,20 @@ public class MagmaEngine {
 
         Keyboard.close();
         Mouse.close();
-        for (Shader shader : shaders) {
-            shader.close();
-        }
-        for (Drawable object : objects) {
-            object.close();
-        }
+//        for (Shader shader : shaders) {
+//            shader.close();
+//        }
+//        for (Drawable object : objects) {
+//            object.close();
+//        }
+
+        Shader.closeAllInstances();
 
         renderer.close();
 
         // this needs to be last because glfw is more important.
         // stop putting things after this you idiot
         window.close();
-        LOGGER.log("Finished cleaning system resources");
     }
 
     public void add(Drawable obj) {
@@ -162,5 +174,9 @@ public class MagmaEngine {
 
     public Window getWindow() {
         return window;
+    }
+
+    public List<Drawable> getObjects() {
+        return objects;
     }
 }

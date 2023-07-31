@@ -66,6 +66,8 @@ public class Mesh {
             FloatBuffer textureUVBuffer = MemoryUtil.memAllocFloat(uvs.length * 2);
             float[] textureData = new float[uvs.length * 2];
             for (int i = 0; i < uvs.length; i++) {
+                if (uvs[i] == null)
+                    uvs[i] = new Vector2f();
                 textureData[i * 2] = uvs[i].x();
                 textureData[(i * 2) + 1] = uvs[i].y();
             }
@@ -79,6 +81,8 @@ public class Mesh {
             FloatBuffer normalBuffer = MemoryUtil.memAllocFloat(normals.length * 3);
             float[] normalData = new float[normals.length * 3];
             for (int i = 0; i < normals.length; i++) {
+                if (normals[i] == null)
+                    normals[i] = new Vector3f(0, 1, 0).normalize();
                 normalData[i * 3] = normals[i].x();
                 normalData[(i * 3) + 1] = normals[i].y();
                 normalData[(i * 3) + 2] = normals[i].z();
@@ -133,10 +137,6 @@ public class Mesh {
         glDeleteVertexArrays(vao);
     }
 
-    public int[] getIndices() {
-        return indices;
-    }
-
     public int getVertexArray() {
         return vao;
     }
@@ -162,4 +162,21 @@ public class Mesh {
             return 0;
         return texture.getID();
     }
+
+    public Vector3f[] getVertices() {
+        return vertices;
+    }
+
+    public Vector2f[] getUVs() {
+        return uvs;
+    }
+
+    public Vector3f[] getNormals() {
+        return normals;
+    }
+
+    public int[] getIndices() {
+        return indices;
+    }
+
 }

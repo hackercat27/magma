@@ -10,14 +10,12 @@ public final class Logger {
 //    private boolean ansi = true;
     private String className;
 
-    private static final String INFO_COLOR = "\u001b[38;2;22;151;218m"; // light blue
-    private static final String INFO_TEXT = "";
-    private static final String WARN_COLOR = "\u001b[38;2;255;255;0m"; // yellow
-    private static final String WARN_TEXT = "";
-    private static final String ERROR_COLOR = "\u001b[1;38;2;255;0;0m"; // bold red
-    private static final String ERROR_TEXT = "\u001b[38;2;255;0;0m"; // red
+    private static final String INFO_COLOR = "\u001b[0m";
+    private static final String WARN_COLOR = "\u001b[38;2;255;212;168m";
+    private static final String ERROR_COLOR = "\u001b[0;31m";
+    private static final String PROPERTIES_COLOR = "\u001b[0m";
 
-    private static final String RESET_COLOR = "\u001b[0m";
+    private static final String RESET = "\u001b[0m";
 
     private Logger() {}
 
@@ -72,12 +70,26 @@ public final class Logger {
 
         String info = name.isBlank()? thread + "/Anonymous Class" : thread + "/" + name;
 
-        String logPrefix = "";
+        String logPrefix;
+        String color;
 
         switch (level) {
-            case INFO -> logPrefix = "[" + getTime() + "] [INFO/" + info + "] ";
-            case WARN -> logPrefix = "[" + getTime() + "] [WARN/" + info + "] ";
-            case ERROR -> logPrefix = "[" + getTime() + "] [ERROR/" + info + "] ";
+            case INFO -> {
+                logPrefix = "[" + getTime() + "] [INFO/" + info + "] ";
+                color = INFO_COLOR;
+            }
+            case WARN -> {
+                logPrefix = "[" + getTime() + "] [WARN/" + info + "] ";
+                color = WARN_COLOR;
+            }
+            case ERROR -> {
+                logPrefix = "[" + getTime() + "] [ERROR/" + info + "] ";
+                color = ERROR_COLOR;
+            }
+            default -> {
+                logPrefix = "";
+                color = "";
+            }
         }
 
         if (message.contains("\n")) {
@@ -89,20 +101,7 @@ public final class Logger {
             message = message.replaceAll("\n", replacement.toString());
         }
 
-        switch (level) {
-            case INFO ->
-                    out.println(INFO_TEXT + "[" + getTime() + "] " +
-                            "[" + RESET_COLOR + INFO_COLOR + "INFO" + RESET_COLOR + INFO_TEXT + "/" + info + "] " +
-                            message + RESET_COLOR);
-            case WARN ->
-                    out.println(WARN_TEXT + "[" + getTime() + "] " +
-                            "[" + RESET_COLOR + WARN_COLOR + "WARN" + RESET_COLOR + WARN_TEXT + "/" + info + "] " +
-                            message + RESET_COLOR);
-            case ERROR ->
-                    out.println(ERROR_TEXT + "[" + getTime() + "] " +
-                            "[" + RESET_COLOR + ERROR_COLOR + "ERROR" + RESET_COLOR + ERROR_TEXT + "/" + info + "] " +
-                            message + RESET_COLOR);
-        }
+        out.println(color + logPrefix + message + RESET);
     }
 
     private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss");

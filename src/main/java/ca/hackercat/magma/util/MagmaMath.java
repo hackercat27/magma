@@ -52,7 +52,7 @@ public final class MagmaMath {
 
         float ratio = (float) window.getWidth() / window.getHeight();
 
-        float near = 0.1f;
+        float near = 0.01f;
         float far = 1000f;
 
         Matrix4f matrix = new Matrix4f().identity();
@@ -296,5 +296,25 @@ public final class MagmaMath {
     }
     public static float randomf() {
         return random.nextFloat();
+    }
+
+    public static Vector2f intersection(Vector2f p1, Vector2f dir1, Vector2f p2, Vector2f dir2) {
+        float m1 = dir1.y / dir1.x;
+        float m2 = dir2.y / dir2.x;
+
+        float b1 = p1.y;
+        float b2 = p2.y;
+
+        return intersection(m1, b1, m2, b2);
+    }
+    public static Vector2f intersection(float m1, float b1, float m2, float b2) {
+        if (m1 == m2) {
+            return new Vector2f(Float.NaN, Float.NaN);
+        }
+
+        float x = (b2 - b1) / (m1 - m2);
+        float y = (m1 * x) + b1;
+
+        return new Vector2f(x, y);
     }
 }

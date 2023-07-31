@@ -70,9 +70,11 @@ public class Mouse {
         lastYScroll = yScroll;
         if (grabbed) {
             glfwSetInputMode(window.getGLFWWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            glfwSetInputMode(window.getGLFWWindow(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
         }
         else {
             glfwSetInputMode(window.getGLFWWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            glfwSetInputMode(window.getGLFWWindow(), GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
         }
     }
 

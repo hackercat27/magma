@@ -56,7 +56,7 @@ public class Keyboard {
         if (key > KEY_COUNT || key < 0)
             return false;
 
-        return held[key];
+        return held[key] || pressed[key];
     }
     public static boolean isKeyPressed(int key) {
         if (key > KEY_COUNT || key < 0)

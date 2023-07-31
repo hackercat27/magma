@@ -22,22 +22,15 @@ public class Sound {
 
     private int bufferID;
     private int sourceID;
-    private String path;
 
 
     private boolean isPlaying = false;
 
+    public Sound(byte[] data, boolean loops) {
+        init(data, "nullpath", loops);
+    }
     public Sound(String path, boolean loops) {
-        this.path = path;
-
-        // allocate space
-        stackPush();
-        IntBuffer channelsBuffer = stackMallocInt(1);
-        stackPush();
-        IntBuffer sampleRateBuffer = stackMallocInt(1);
-
         InputStream is = FileUtils.getInputStream(path);
-
         byte[] data = null;
 
         try {
@@ -46,6 +39,15 @@ public class Sound {
         catch (IOException e) {
             LOGGER.error(e);
         }
+        init(data, path, loops);
+    }
+
+    private void init(byte[] data, String path, boolean loops) {
+        // allocate space
+        stackPush();
+        IntBuffer channelsBuffer = stackMallocInt(1);
+        stackPush();
+        IntBuffer sampleRateBuffer = stackMallocInt(1);
 
         ByteBuffer inBuffer = BufferUtils.createByteBuffer(data.length);
         inBuffer.put(data).flip();
@@ -88,7 +90,6 @@ public class Sound {
         alSourcef(sourceID, AL_GAIN, 1f);
 
         free(rawAudioBuffer);
-
     }
 
     private float toDB(float linear) {
