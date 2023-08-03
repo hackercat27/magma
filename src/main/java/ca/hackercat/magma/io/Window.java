@@ -83,20 +83,20 @@ public class Window {
     private void create() {
         boolean init = glfwInit();
         if (!init) {
-            System.err.println("error initializing glfw");
+            LOGGER.error("Error initializing glfw");
             return;
         }
 
         window = glfwCreateWindow(width, height, title, 0, 0);
 
         if (window == 0) {
-            System.err.println("window was not created");
+            LOGGER.error("Window was not created");
             return;
         }
 
         videoMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
         if (videoMode == null) {
-            System.err.println("glfw video mode == null!");
+            LOGGER.error("GLFW video mode == null!");
             return;
         }
         glfwSetWindowPos(window, (videoMode.width() - width) / 2, (videoMode.height() - height) / 2);
@@ -259,4 +259,15 @@ public class Window {
         return window;
     }
 
+    public GLCapabilities getGLCapabilities() {
+        return glCapabilities;
+    }
+
+    public ALCCapabilities getALCCapabilities() {
+        return alcCapabilities;
+    }
+
+    public ALCapabilities getALCapabilities() {
+        return alCapabilities;
+    }
 }

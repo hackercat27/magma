@@ -8,7 +8,6 @@ import org.joml.Math;
 public abstract class Camera extends Drawable {
 
     protected Vector3f position = new Vector3f();
-    protected Vector3f offset = new Vector3f();
     protected Quaternionf rotation = new Quaternionf();
     protected float fov = Math.toRadians(90);
 

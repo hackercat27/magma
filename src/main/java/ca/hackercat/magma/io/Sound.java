@@ -11,9 +11,10 @@ import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
 import static org.lwjgl.openal.AL10.*;
-import static org.lwjgl.stb.STBVorbis.stb_vorbis_decode_filename;
 import static org.lwjgl.stb.STBVorbis.stb_vorbis_decode_memory;
-import static org.lwjgl.system.MemoryStack.*;
+import static org.lwjgl.system.MemoryStack.stackMallocInt;
+import static org.lwjgl.system.MemoryStack.stackPop;
+import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.libc.LibCStdlib.free;
 
 public class Sound {
@@ -31,14 +32,16 @@ public class Sound {
     }
     public Sound(String path, boolean loops) {
         InputStream is = FileUtils.getInputStream(path);
-        byte[] data = null;
+        byte[] data;
 
         try {
             data = is.readAllBytes();
         }
         catch (IOException e) {
             LOGGER.error(e);
+            return;
         }
+
         init(data, path, loops);
     }
 
@@ -59,6 +62,7 @@ public class Sound {
 
         if (rawAudioBuffer == null) {
             LOGGER.error("Error getting audio data for '" + path + "'");
+            return;
         }
 
         int channels = channelsBuffer.get();

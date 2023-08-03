@@ -10,7 +10,10 @@ import ca.hackercat.magma.io.Window;
 import ca.hackercat.magma.object.Camera;
 import ca.hackercat.magma.object.Drawable;
 import ca.hackercat.magma.io.SoundEventManager;
+import org.lwjgl.opengl.GLCapabilities;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -53,6 +56,34 @@ public class MagmaEngine {
         }
 
         LOGGER.log(str);
+
+        GLCapabilities capabilities = window.getGLCapabilities();
+
+        StringBuilder cap = new StringBuilder();
+
+        for (Field field : GLCapabilities.class.getFields()) {
+
+            Type type = field.getType();
+
+            if (type.getTypeName().equals(boolean.class.getTypeName())) {
+
+                try {
+                    boolean b = field.getBoolean(capabilities);
+
+                    if (b) {
+                        cap.append(field.getName()).append("\n");
+                    }
+
+                } catch (IllegalAccessException e) {
+                    LOGGER.error(e);
+                }
+
+            }
+
+        }
+
+        LOGGER.log(cap);
+
 
         Mouse.setWindow(window);
         Keyboard.setWindow(window);
@@ -107,9 +138,6 @@ public class MagmaEngine {
             object.update(deltaTime);
 
             if (object instanceof Camera c) {
-//                renderer.cameraPosition = c.getPosition();
-//                renderer.cameraRotation = c.getRotation();
-//                renderer.cameraFOV = c.getFOV();
                 renderer.camera = c;
             }
         }
@@ -117,16 +145,6 @@ public class MagmaEngine {
 
     private void render() {
         renderer.init();
-//        objects.sort(new Comparator<Drawable>() {
-//            @Override
-//            public int compare(Drawable o1, Drawable o2) {
-//                if (o1.getLayer() == o2.getLayer())
-//                    return 0;
-//                if (o1.getLayer() < o2.getLayer())
-//                    return -1;
-//                return 1;
-//            }
-//        });
         objects.sort(Comparator.comparingInt(Drawable::getLayer));
 
 
@@ -152,12 +170,10 @@ public class MagmaEngine {
 
         Keyboard.close();
         Mouse.close();
-//        for (Shader shader : shaders) {
-//            shader.close();
-//        }
-//        for (Drawable object : objects) {
-//            object.close();
-//        }
+
+        for (Drawable object : objects) {
+            object.close();
+        }
 
         Shader.closeAllInstances();
 
@@ -176,6 +192,7 @@ public class MagmaEngine {
         return window;
     }
 
+    // probably a bad idea
     public List<Drawable> getObjects() {
         return objects;
     }

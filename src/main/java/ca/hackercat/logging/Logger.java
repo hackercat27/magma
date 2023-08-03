@@ -5,9 +5,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public final class Logger {
-    private PrintStream out;
+    private static PrintStream out = System.out;
 
-//    private boolean ansi = true;
     private String className;
 
     private static final String INFO_COLOR = "\u001b[0m";
@@ -17,16 +16,9 @@ public final class Logger {
 
     private static final String RESET = "\u001b[0m";
 
-    private Logger() {}
-
     private Logger(String className) {
         this.className = className;
-        this.out = System.out;
     }
-//    private Logger(Class<T> clazz, PrintStream out) {
-//        this.clazz = clazz;
-//        this.out = out;
-//    }
 
     public static <T> Logger get(Class<T> clazz) {
         return new Logger(clazz.getSimpleName());
@@ -38,15 +30,11 @@ public final class Logger {
         ERROR
     }
 
-//    public void setPrintNewLines(boolean printNewLines) {
-//        this.printNewLines = printNewLines;
-//    }
-//    public void setSupportsANSI(boolean supportsANSI) {
-//        this.supportsANSI = supportsANSI;
-//    }
-
     public void log(Object o) {
         log(o.toString());
+    }
+    public void log(Throwable t) {
+        log(t.toString() + "\n" + getStackTrace(t));
     }
     public void log(String msg) {
         print(Level.INFO, msg);
@@ -54,14 +42,30 @@ public final class Logger {
     public void warn(Object o) {
         warn(o.toString());
     }
+    public void warn(Throwable t) {
+        warn(t.toString() + "\n" + getStackTrace(t));
+    }
     public void warn(String msg) {
         print(Level.WARN, msg);
     }
     public void error(Object o) {
         error(o.toString());
     }
+    public void error(Throwable t) {
+        error(t.toString() + "\n" + getStackTrace(t));
+    }
     public void error(String msg) {
         print(Level.ERROR, msg);
+    }
+
+    private String getStackTrace(Throwable t) {
+        StackTraceElement[] elements = t.getStackTrace();
+        StringBuilder str = new StringBuilder();
+
+        for (StackTraceElement element : elements) {
+            str.append(element.toString()).append("\n");
+        }
+        return str.toString();
     }
 
     private void print(Level level, String message) {

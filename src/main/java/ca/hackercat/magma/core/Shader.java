@@ -2,17 +2,19 @@ package ca.hackercat.magma.core;
 
 import ca.hackercat.logging.Logger;
 import ca.hackercat.magma.io.FileUtils;
+import org.joml.Matrix4d;
 import org.joml.Matrix4f;
+import org.joml.Vector2d;
 import org.joml.Vector2f;
+import org.joml.Vector3d;
 import org.joml.Vector3f;
+import org.joml.Vector4d;
 import org.joml.Vector4f;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.lwjgl.opengl.GL20.*;
 
@@ -74,7 +76,6 @@ public class Shader {
         if (glGetShaderi(vertexID, GL_COMPILE_STATUS) == GL_FALSE) {
             LOGGER.error(vertexPath + " couldn't compile\n"
                     + glGetShaderInfoLog(vertexID));
-            return;
         }
 
         fragmentID = glCreateShader(GL_FRAGMENT_SHADER);
@@ -83,7 +84,6 @@ public class Shader {
         if (glGetShaderi(fragmentID, GL_COMPILE_STATUS) == GL_FALSE) {
             LOGGER.error(fragmentPath + " couldn't compile\n"
                     + glGetShaderInfoLog(fragmentID));
-            return;
         }
 
         glAttachShader(programID, vertexID);
@@ -92,12 +92,10 @@ public class Shader {
         glLinkProgram(programID);
         if (glGetProgrami(programID, GL_LINK_STATUS) == GL_FALSE) {
             LOGGER.error("Shader " + name + " initialization error - Couldn't link program\n" + glGetProgramInfoLog(programID));
-            return;
         }
         glValidateProgram(programID);
         if (glGetProgrami(programID, GL_VALIDATE_STATUS) == GL_FALSE) {
             LOGGER.error("Shader " + name + " initialization error Program is invalid\n" + glGetProgramInfoLog(programID));
-            return;
         }
 
     }
@@ -131,6 +129,9 @@ public class Shader {
     public void setUniform(String name, float value) {
         glUniform1f(getUniformLocation(name), value);
     }
+    public void setUniform(String name, double value) {
+        setUniform(name, (float) value);
+    }
     public void setUniform(String name, int value) {
         glUniform1i(getUniformLocation(name), value);
     }
@@ -140,11 +141,20 @@ public class Shader {
     public void setUniform(String name, Vector2f value) {
         glUniform2f(getUniformLocation(name), value.x(), value.y());
     }
+    public void setUniform(String name, Vector2d value) {
+        glUniform2f(getUniformLocation(name), (float) value.x(), (float) value.y());
+    }
     public void setUniform(String name, Vector3f value) {
         glUniform3f(getUniformLocation(name), value.x(), value.y(), value.z());
     }
+    public void setUniform(String name, Vector3d value) {
+        glUniform3f(getUniformLocation(name), (float) value.x(), (float) value.y(), (float) value.z());
+    }
     public void setUniform(String name, Vector4f value) {
         glUniform4f(getUniformLocation(name), value.x(), value.y(), value.z(), value.w());
+    }
+    public void setUniform(String name, Vector4d value) {
+        glUniform4f(getUniformLocation(name), (float) value.x(), (float) value.y(), (float) value.z(), (float) value.w());
     }
     public void setUniform(String name, Matrix4f value) {
         FloatBuffer matBuffer = MemoryUtil.memAllocFloat(16);
@@ -153,10 +163,16 @@ public class Shader {
 
         MemoryUtil.memFree(matBuffer);
     }
+    public void setUniform(String name, Matrix4d value) {
+        setUniform(name, new Matrix4f(value));
+    }
 
     private void setGenericUniform(String name, Object value) {
         if (value instanceof Float f) {
             setUniform(name, f);
+        }
+        else if (value instanceof Double d) {
+            setUniform(name, d);
         }
         else if (value instanceof Boolean b) {
             setUniform(name, b);
@@ -174,6 +190,18 @@ public class Shader {
             setUniform(name, vec4);
         }
         else if (value instanceof Matrix4f mat4) {
+            setUniform(name, mat4);
+        }
+        else if (value instanceof Vector2d vec2) {
+            setUniform(name, vec2);
+        }
+        else if (value instanceof Vector3d vec3) {
+            setUniform(name, vec3);
+        }
+        else if (value instanceof Vector4d vec4) {
+            setUniform(name, vec4);
+        }
+        else if (value instanceof Matrix4d mat4) {
             setUniform(name, mat4);
         }
 

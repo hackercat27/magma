@@ -1,6 +1,5 @@
 package ca.hackercat.magma.io;
 
-
 import ca.hackercat.logging.Logger;
 import ca.hackercat.magma.core.Mesh;
 import org.joml.Vector2f;
@@ -17,6 +16,10 @@ public class FileUtils {
     private static final Logger LOGGER = Logger.get(FileUtils.class);
 
     private static boolean fileInject = true;
+
+    public static void setFileInject(boolean inject) {
+        FileUtils.fileInject = inject;
+    }
 
     public static String getContents(String path) {
         InputStream is = getInputStream(path);
@@ -68,89 +71,140 @@ public class FileUtils {
         return is;
     }
 
-    public static Mesh loadWavefrontOBJ(String path, String texturePath) {
-        Mesh mesh = loadWavefrontOBJ(path);
-        mesh.setTexture(new Texture(texturePath));
-        return mesh;
+    private static class OBJVertex {
+
+        private int position;
+        private int uv;
+        private int normal;
+
+        public OBJVertex() {}
+
+        public OBJVertex(String encodedNumbers) {
+
+            String[] nums = encodedNumbers.split("/");
+            position = Integer.parseInt(nums[0]) - 1;
+            uv       = Integer.parseInt(nums[1]) - 1;
+            normal   = Integer.parseInt(nums[2]) - 1;
+
+        }
+
+        public OBJVertex(int position, int uv, int normal) {
+            this.position = position;
+            this.uv = uv;
+            this.normal = normal;
+        }
     }
-    public static Mesh loadWavefrontOBJ(String path) {
+
+    private static class OBJTri {
+
+        OBJVertex p1, p2, p3;
+
+        public OBJTri(OBJVertex p1, OBJVertex p2, OBJVertex p3) {
+            this.p1 = p1;
+            this.p2 = p2;
+            this.p3 = p3;
+        }
+
+        public OBJVertex[] getVertices() {
+            return new OBJVertex[] {p1, p2, p3};
+        }
+
+        public OBJVertex getP1() {
+            return p1;
+        }
+
+        public OBJVertex getP2() {
+            return p2;
+        }
+
+        public OBJVertex getP3() {
+            return p3;
+        }
+    }
+
+    public static Mesh loadWavefrontOBJ(String path, String texturePath) {
         String contents = getContents(path);
 
-        String[] lines = contents.split("\n");
+        List<Vector3f> unsortedPositionList = new ArrayList<>();
+        List<Vector2f> unsortedUVList = new ArrayList<>();
+        List<Vector3f> unsortedNormalList = new ArrayList<>();
+        List<OBJTri> faceList = new ArrayList<>();
 
-        List<Vector3f> vertices = new ArrayList<>(0);
-        List<Vector2f> textures = new ArrayList<>(0);
-        List<Vector3f> normals = new ArrayList<>(0);
-        List<Integer> indices = new ArrayList<>(0);
+        Vector3f[] positions;
+        Vector2f[] uvs;
+        Vector3f[] normals;
+        int[] indices;
 
-        Vector3f[] verticesArray;
-        Vector3f[] normalsArray;
-        Vector2f[] textureArray;
-        int[] indicesArray;
+        final String position_prefix = "v ";
+        final String uv_prefix = "vt ";
+        final String normal_prefix = "vn ";
+        final String face_prefix = "f ";
 
-        // TODO: this is kindof a braindead way of parsing the file. I mean, it works, but please fix it oh god
-        for (String line : lines) {
-            String[] splitLine = line.split(" ");
+        for (String line : contents.split("\n")) {
 
-            if (line.startsWith("v ")) {
-                Vector3f vertex = new Vector3f(Float.parseFloat(splitLine[1]), Float.parseFloat(splitLine[2]), Float.parseFloat(splitLine[3]));
-                vertices.add(vertex);
+            if (line.startsWith(position_prefix)) {
+                String[] sublines = line.split(" ");
+
+                float x = Float.parseFloat(sublines[1]);
+                float y = Float.parseFloat(sublines[2]);
+                float z = Float.parseFloat(sublines[3]);
+
+                unsortedPositionList.add(new Vector3f(x, y, z));
             }
-            else if (line.startsWith("vt ")) {
-                Vector2f texture = new Vector2f(Float.parseFloat(splitLine[1]), 1 - Float.parseFloat(splitLine[2]));
-                textures.add(texture);
+            else if (line.startsWith(uv_prefix)) {
+                String[] sublines = line.split(" ");
+
+                float x = Float.parseFloat(sublines[1]);
+                float y = 1 - Float.parseFloat(sublines[2]);
+                // blender has 0, 0 at top left but opengl expects 0, 0 to be bottom left
+
+                unsortedUVList.add(new Vector2f(x, y));
             }
-            else if (line.startsWith("vn ")) {
-                Vector3f normal = new Vector3f(Float.parseFloat(splitLine[1]), Float.parseFloat(splitLine[2]), Float.parseFloat(splitLine[3]));
-                normals.add(normal);
+            else if (line.startsWith(normal_prefix)) {
+                String[] sublines = line.split(" ");
+
+                float x = Float.parseFloat(sublines[1]);
+                float y = Float.parseFloat(sublines[2]);
+                float z = Float.parseFloat(sublines[3]);
+
+                unsortedNormalList.add(new Vector3f(x, y, z));
             }
-            else if (line.startsWith("f ")) {
-                break;
+            else if (line.startsWith(face_prefix)) {
+                String[] sublines = line.split(" ");
+                faceList.add(new OBJTri(
+                        new OBJVertex(sublines[1]),
+                        new OBJVertex(sublines[2]),
+                        new OBJVertex(sublines[3])
+                ));
             }
 
         }
 
-        textureArray = new Vector2f[vertices.size()];
-        normalsArray = new Vector3f[vertices.size()];
+        int length = faceList.size() * 3;
 
+        LOGGER.log(length);
 
-        for (String line : lines) {
-            if (!line.startsWith("f ")) {
-                continue;
+        positions = new Vector3f[length];
+        uvs = new Vector2f[length];
+        normals = new Vector3f[length];
+        indices = new int[length];
+
+//        LOGGER.log(unsortedPositionList.size() + " " + unsortedUVList.size() + " " + unsortedNormalList.size() + " " + (faceList.size() * 3));
+
+        int currentIndex = 0;
+        for (OBJTri face : faceList) {
+
+            for (OBJVertex vertex : face.getVertices()) {
+                positions[currentIndex] = unsortedPositionList.get(vertex.position);
+                uvs[currentIndex] = unsortedUVList.get(vertex.uv);
+                normals[currentIndex] = unsortedNormalList.get(vertex.normal);
+                indices[currentIndex] = currentIndex;
+
+                currentIndex++;
             }
 
-            String[] splitLine = line.split(" ");
-            String[] v1 = splitLine[1].split("/");
-            String[] v2 = splitLine[2].split("/");
-            String[] v3 = splitLine[3].split("/");
-
-            processVertex(v1, indices, textures, normals, textureArray, normalsArray);
-            processVertex(v2, indices, textures, normals, textureArray, normalsArray);
-            processVertex(v3, indices, textures, normals, textureArray, normalsArray);
-
         }
 
-        verticesArray = new Vector3f[vertices.size()];
-        indicesArray = new int[indices.size()];
-
-        for (int i = 0; i < verticesArray.length; i++) {
-            verticesArray[i] = vertices.get(i);
-        }
-
-        for (int i = 0; i < indices.size(); i++) {
-            indicesArray[i] = indices.get(i);
-        }
-
-        return new Mesh(verticesArray, textureArray, normalsArray, indicesArray);
-    }
-    private static void processVertex(String[] vertexData, List<Integer> indices, List<Vector2f> textures,
-                                       List<Vector3f> normals, Vector2f[] textureArray, Vector3f[] normalsArray) {
-
-        int currentVertexPointer = Integer.parseInt(vertexData[0]) - 1;
-        indices.add(currentVertexPointer);
-
-        textureArray[currentVertexPointer] = textures.get(Integer.parseInt(vertexData[1]) - 1);
-        normalsArray[currentVertexPointer] = normals.get(Integer.parseInt(vertexData[2]) - 1);
-
+        return new Mesh(positions, uvs, normals, indices, new Texture(texturePath));
     }
 }

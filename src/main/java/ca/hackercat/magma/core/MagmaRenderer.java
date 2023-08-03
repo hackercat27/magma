@@ -5,14 +5,12 @@ import ca.hackercat.magma.Renderer;
 import ca.hackercat.magma.io.Window;
 import ca.hackercat.magma.object.Camera;
 import ca.hackercat.magma.util.MagmaMath;
-import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import static org.lwjgl.opengl.GL11C.*;
-import static org.lwjgl.opengl.GL11C.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL13C.GL_TEXTURE0;
 import static org.lwjgl.opengl.GL13C.glActiveTexture;
 import static org.lwjgl.opengl.GL15C.GL_ARRAY_BUFFER;
@@ -182,8 +180,6 @@ public class MagmaRenderer extends Renderer {
 
     @Override
     public void drawString(String str, Vector3f pos, Quaternionf rotation) {
-
-
 
     }
 

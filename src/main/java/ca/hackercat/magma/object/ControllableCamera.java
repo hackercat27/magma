@@ -52,18 +52,16 @@ public class ControllableCamera extends Camera {
             position.y -= speed * deltaTime;
         }
 
-//        if (Mouse.isGrabbed()) {
-            yaw -= Mouse.getDX() * mouseSensitivity;
-            pitch -= Mouse.getDY() * mouseSensitivity;
-            pitch = (float) Math.max(Math.min(pitch, Math.PI / 2), -Math.PI / 2);
+        yaw -= Mouse.getDX() * mouseSensitivity;
+        pitch -= Mouse.getDY() * mouseSensitivity;
+        pitch = (float) Math.max(Math.min(pitch, Math.PI / 2), -Math.PI / 2);
 
-            rotation = new Quaternionf();
+        rotation = new Quaternionf();
 
-            Vector3f xRotationAxis = new Vector3f(1, 0, 0);
-            rotation.rotateAxis(-pitch, xRotationAxis);
-            Vector3f yRotationAxis = new Vector3f(0, 1, 0);
-            rotation.rotateAxis(-yaw, yRotationAxis);
-//        }
+        Vector3f xRotationAxis = new Vector3f(1, 0, 0);
+        rotation.rotateAxis(-pitch, xRotationAxis);
+        Vector3f yRotationAxis = new Vector3f(0, 1, 0);
+        rotation.rotateAxis(-yaw, yRotationAxis);
 
         float targetFOV;
         if (Keyboard.isKeyHeld(GLFW_KEY_Z)) {
